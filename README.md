@@ -1,3 +1,5 @@
+Slightly modified version of https://gitlab.gnome.org/World/Rust/mpris-player without glib.
+
 # mpris-player
 #### A Rust library for creating MPRIS2 media players over D-Bus
 

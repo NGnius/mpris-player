@@ -12,7 +12,7 @@ pub trait OrgMprisMediaPlayer2Player {
     fn stop(&self) -> Result<(), Self::Err>;
     fn play(&self) -> Result<(), Self::Err>;
     fn seek(&self, offset: i64) -> Result<(), Self::Err>;
-    fn set_position(&self, track_id: dbus::Path, position: i64) -> Result<(), Self::Err>;
+    fn set_position(&self, track_id: dbus::Path<'_>, position: i64) -> Result<(), Self::Err>;
     fn open_uri(&self, uri: &str) -> Result<(), Self::Err>;
     fn get_playback_status(&self) -> Result<String, Self::Err>;
     fn get_loop_status(&self) -> Result<String, Self::Err>;
@@ -24,7 +24,7 @@ pub trait OrgMprisMediaPlayer2Player {
     fn get_metadata(
         &self,
     ) -> Result<
-        ::std::collections::HashMap<String, arg::Variant<Box<arg::RefArg + 'static>>>,
+        ::std::collections::HashMap<String, arg::Variant<Box<dyn arg::RefArg + 'static>>>,
         Self::Err,
     >;
     fn get_volume(&self) -> Result<f64, Self::Err>;
@@ -46,67 +46,67 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     type Err = dbus::Error;
 
     fn next(&self) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(
+        let mut m = r#try!(self.method_call_with_args(
             &"org.mpris.MediaPlayer2.Player".into(),
             &"Next".into(),
             |_| {}
         ));
-        try!(m.as_result());
+        r#try!(m.as_result());
         Ok(())
     }
 
     fn previous(&self) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(
+        let mut m = r#try!(self.method_call_with_args(
             &"org.mpris.MediaPlayer2.Player".into(),
             &"Previous".into(),
             |_| {}
         ));
-        try!(m.as_result());
+        r#try!(m.as_result());
         Ok(())
     }
 
     fn pause(&self) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(
+        let mut m = r#try!(self.method_call_with_args(
             &"org.mpris.MediaPlayer2.Player".into(),
             &"Pause".into(),
             |_| {}
         ));
-        try!(m.as_result());
+        r#try!(m.as_result());
         Ok(())
     }
 
     fn play_pause(&self) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(
+        let mut m = r#try!(self.method_call_with_args(
             &"org.mpris.MediaPlayer2.Player".into(),
             &"PlayPause".into(),
             |_| {}
         ));
-        try!(m.as_result());
+        r#try!(m.as_result());
         Ok(())
     }
 
     fn stop(&self) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(
+        let mut m = r#try!(self.method_call_with_args(
             &"org.mpris.MediaPlayer2.Player".into(),
             &"Stop".into(),
             |_| {}
         ));
-        try!(m.as_result());
+        r#try!(m.as_result());
         Ok(())
     }
 
     fn play(&self) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(
+        let mut m = r#try!(self.method_call_with_args(
             &"org.mpris.MediaPlayer2.Player".into(),
             &"Play".into(),
             |_| {}
         ));
-        try!(m.as_result());
+        r#try!(m.as_result());
         Ok(())
     }
 
     fn seek(&self, offset: i64) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(
+        let mut m = r#try!(self.method_call_with_args(
             &"org.mpris.MediaPlayer2.Player".into(),
             &"Seek".into(),
             |msg| {
@@ -114,12 +114,12 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
                 i.append(offset);
             }
         ));
-        try!(m.as_result());
+        r#try!(m.as_result());
         Ok(())
     }
 
-    fn set_position(&self, track_id: dbus::Path, position: i64) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(
+    fn set_position(&self, track_id: dbus::Path<'_>, position: i64) -> Result<(), Self::Err> {
+        let mut m = r#try!(self.method_call_with_args(
             &"org.mpris.MediaPlayer2.Player".into(),
             &"SetPosition".into(),
             |msg| {
@@ -128,12 +128,12 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
                 i.append(position);
             }
         ));
-        try!(m.as_result());
+        r#try!(m.as_result());
         Ok(())
     }
 
     fn open_uri(&self, uri: &str) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(
+        let mut m = r#try!(self.method_call_with_args(
             &"org.mpris.MediaPlayer2.Player".into(),
             &"OpenUri".into(),
             |msg| {
@@ -141,7 +141,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
                 i.append(uri);
             }
         ));
-        try!(m.as_result());
+        r#try!(m.as_result());
         Ok(())
     }
 
@@ -180,7 +180,7 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2Pl
     fn get_metadata(
         &self,
     ) -> Result<
-        ::std::collections::HashMap<String, arg::Variant<Box<arg::RefArg + 'static>>>,
+        ::std::collections::HashMap<String, arg::Variant<Box<dyn arg::RefArg + 'static>>>,
         Self::Err,
     > {
         <Self as dbus::stdintf::org_freedesktop_dbus::Properties>::get(
@@ -318,14 +318,14 @@ where
     D::Property: Default,
     D::Signal: Default,
     T: OrgMprisMediaPlayer2Player<Err = tree::MethodErr>,
-    F: 'static + for<'z> Fn(&'z tree::MethodInfo<tree::MTFn<D>, D>) -> &'z T,
+    F: 'static + for<'z> Fn(&'z tree::MethodInfo<'_, tree::MTFn<D>, D>) -> &'z T,
 {
     let i = factory.interface("org.mpris.MediaPlayer2.Player", data);
     let f = ::std::sync::Arc::new(f);
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<'_, tree::MTFn<D>, D>| {
         let d = fclone(minfo);
-        try!(d.next());
+        r#try!(d.next());
         let rm = minfo.msg.method_return();
         Ok(vec![rm])
     };
@@ -333,9 +333,9 @@ where
     let i = i.add_m(m);
 
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<'_, tree::MTFn<D>, D>| {
         let d = fclone(minfo);
-        try!(d.previous());
+        r#try!(d.previous());
         let rm = minfo.msg.method_return();
         Ok(vec![rm])
     };
@@ -343,9 +343,9 @@ where
     let i = i.add_m(m);
 
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<'_, tree::MTFn<D>, D>| {
         let d = fclone(minfo);
-        try!(d.pause());
+        r#try!(d.pause());
         let rm = minfo.msg.method_return();
         Ok(vec![rm])
     };
@@ -353,9 +353,9 @@ where
     let i = i.add_m(m);
 
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<'_, tree::MTFn<D>, D>| {
         let d = fclone(minfo);
-        try!(d.play_pause());
+        r#try!(d.play_pause());
         let rm = minfo.msg.method_return();
         Ok(vec![rm])
     };
@@ -363,9 +363,9 @@ where
     let i = i.add_m(m);
 
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<'_, tree::MTFn<D>, D>| {
         let d = fclone(minfo);
-        try!(d.stop());
+        r#try!(d.stop());
         let rm = minfo.msg.method_return();
         Ok(vec![rm])
     };
@@ -373,9 +373,9 @@ where
     let i = i.add_m(m);
 
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<'_, tree::MTFn<D>, D>| {
         let d = fclone(minfo);
-        try!(d.play());
+        r#try!(d.play());
         let rm = minfo.msg.method_return();
         Ok(vec![rm])
     };
@@ -383,11 +383,11 @@ where
     let i = i.add_m(m);
 
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<'_, tree::MTFn<D>, D>| {
         let mut i = minfo.msg.iter_init();
-        let offset: i64 = try!(i.read());
+        let offset: i64 = r#try!(i.read());
         let d = fclone(minfo);
-        try!(d.seek(offset));
+        r#try!(d.seek(offset));
         let rm = minfo.msg.method_return();
         Ok(vec![rm])
     };
@@ -396,12 +396,12 @@ where
     let i = i.add_m(m);
 
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<'_, tree::MTFn<D>, D>| {
         let mut i = minfo.msg.iter_init();
-        let track_id: dbus::Path = try!(i.read());
-        let position: i64 = try!(i.read());
+        let track_id: dbus::Path<'_> = r#try!(i.read());
+        let position: i64 = r#try!(i.read());
         let d = fclone(minfo);
-        try!(d.set_position(track_id, position));
+        r#try!(d.set_position(track_id, position));
         let rm = minfo.msg.method_return();
         Ok(vec![rm])
     };
@@ -411,11 +411,11 @@ where
     let i = i.add_m(m);
 
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<'_, tree::MTFn<D>, D>| {
         let mut i = minfo.msg.iter_init();
-        let uri: &str = try!(i.read());
+        let uri: &str = r#try!(i.read());
         let d = fclone(minfo);
-        try!(d.open_uri(uri));
+        r#try!(d.open_uri(uri));
         let rm = minfo.msg.method_return();
         Ok(vec![rm])
     };
@@ -429,7 +429,7 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_playback_status()));
+        a.append(r#try!(d.get_playback_status()));
         Ok(())
     });
     let i = i.add_p(p);
@@ -440,14 +440,14 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_loop_status()));
+        a.append(r#try!(d.get_loop_status()));
         Ok(())
     });
     let fclone = f.clone();
     let p = p.on_set(move |iter, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        try!(d.set_loop_status(try!(iter.read())));
+        r#try!(d.set_loop_status(r#try!(iter.read())));
         Ok(())
     });
     let i = i.add_p(p);
@@ -458,14 +458,14 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_rate()));
+        a.append(r#try!(d.get_rate()));
         Ok(())
     });
     let fclone = f.clone();
     let p = p.on_set(move |iter, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        try!(d.set_rate(try!(iter.read())));
+        r#try!(d.set_rate(r#try!(iter.read())));
         Ok(())
     });
     let i = i.add_p(p);
@@ -476,20 +476,20 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_shuffle()));
+        a.append(r#try!(d.get_shuffle()));
         Ok(())
     });
     let fclone = f.clone();
     let p = p.on_set(move |iter, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        try!(d.set_shuffle(try!(iter.read())));
+        r#try!(d.set_shuffle(r#try!(iter.read())));
         Ok(())
     });
     let i = i.add_p(p);
 
     let p = factory
-        .property::<::std::collections::HashMap<&str, arg::Variant<Box<arg::RefArg>>>, _>(
+        .property::<::std::collections::HashMap<&str, arg::Variant<Box<dyn arg::RefArg>>>, _>(
             "Metadata",
             Default::default(),
         );
@@ -498,7 +498,7 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_metadata()));
+        a.append(r#try!(d.get_metadata()));
         Ok(())
     });
     let i = i.add_p(p);
@@ -509,14 +509,14 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_volume()));
+        a.append(r#try!(d.get_volume()));
         Ok(())
     });
     let fclone = f.clone();
     let p = p.on_set(move |iter, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        try!(d.set_volume(try!(iter.read())));
+        r#try!(d.set_volume(r#try!(iter.read())));
         Ok(())
     });
     let i = i.add_p(p);
@@ -527,7 +527,7 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_position()));
+        a.append(r#try!(d.get_position()));
         Ok(())
     });
     let i = i.add_p(p);
@@ -538,7 +538,7 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_minimum_rate()));
+        a.append(r#try!(d.get_minimum_rate()));
         Ok(())
     });
     let i = i.add_p(p);
@@ -549,7 +549,7 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_maximum_rate()));
+        a.append(r#try!(d.get_maximum_rate()));
         Ok(())
     });
     let i = i.add_p(p);
@@ -560,7 +560,7 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_can_go_next()));
+        a.append(r#try!(d.get_can_go_next()));
         Ok(())
     });
     let i = i.add_p(p);
@@ -571,7 +571,7 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_can_go_previous()));
+        a.append(r#try!(d.get_can_go_previous()));
         Ok(())
     });
     let i = i.add_p(p);
@@ -582,7 +582,7 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_can_play()));
+        a.append(r#try!(d.get_can_play()));
         Ok(())
     });
     let i = i.add_p(p);
@@ -593,7 +593,7 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_can_pause()));
+        a.append(r#try!(d.get_can_pause()));
         Ok(())
     });
     let i = i.add_p(p);
@@ -604,7 +604,7 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_can_seek()));
+        a.append(r#try!(d.get_can_seek()));
         Ok(())
     });
     let i = i.add_p(p);
@@ -615,7 +615,7 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_can_control()));
+        a.append(r#try!(d.get_can_control()));
         Ok(())
     });
     let i = i.add_p(p);
@@ -633,11 +633,11 @@ pub struct OrgMprisMediaPlayer2PlayerSeeked {
 impl dbus::SignalArgs for OrgMprisMediaPlayer2PlayerSeeked {
     const NAME: &'static str = "Seeked";
     const INTERFACE: &'static str = "org.mpris.MediaPlayer2.Player";
-    fn append(&self, i: &mut arg::IterAppend) {
-        (&self.position as &arg::RefArg).append(i);
+    fn append(&self, i: &mut arg::IterAppend<'_>) {
+        (&self.position as &dyn arg::RefArg).append(i);
     }
-    fn get(&mut self, i: &mut arg::Iter) -> Result<(), arg::TypeMismatchError> {
-        self.position = try!(i.read());
+    fn get(&mut self, i: &mut arg::Iter<'_>) -> Result<(), arg::TypeMismatchError> {
+        self.position = r#try!(i.read());
         Ok(())
     }
 }
@@ -646,22 +646,22 @@ impl dbus::SignalArgs for OrgMprisMediaPlayer2PlayerSeeked {
 pub struct OrgFreedesktopDBusPropertiesPropertiesChanged {
     pub interface_name: String,
     pub changed_properties:
-        ::std::collections::HashMap<String, arg::Variant<Box<arg::RefArg + 'static>>>,
+        ::std::collections::HashMap<String, arg::Variant<Box<dyn arg::RefArg + 'static>>>,
     pub invalidated_properties: Vec<String>,
 }
 
 impl dbus::SignalArgs for OrgFreedesktopDBusPropertiesPropertiesChanged {
     const NAME: &'static str = "PropertiesChanged";
     const INTERFACE: &'static str = "org.freedesktop.DBus.Properties";
-    fn append(&self, i: &mut arg::IterAppend) {
-        (&self.interface_name as &arg::RefArg).append(i);
-        (&self.changed_properties as &arg::RefArg).append(i);
-        (&self.invalidated_properties as &arg::RefArg).append(i);
+    fn append(&self, i: &mut arg::IterAppend<'_>) {
+        (&self.interface_name as &dyn arg::RefArg).append(i);
+        (&self.changed_properties as &dyn arg::RefArg).append(i);
+        (&self.invalidated_properties as &dyn arg::RefArg).append(i);
     }
-    fn get(&mut self, i: &mut arg::Iter) -> Result<(), arg::TypeMismatchError> {
-        self.interface_name = try!(i.read());
-        self.changed_properties = try!(i.read());
-        self.invalidated_properties = try!(i.read());
+    fn get(&mut self, i: &mut arg::Iter<'_>) -> Result<(), arg::TypeMismatchError> {
+        self.interface_name = r#try!(i.read());
+        self.changed_properties = r#try!(i.read());
+        self.invalidated_properties = r#try!(i.read());
         Ok(())
     }
 }

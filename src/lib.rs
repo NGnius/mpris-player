@@ -1,16 +1,15 @@
-extern crate dbus;
-extern crate glib;
+#![allow(deprecated)]
 
 mod mpris_player;
-pub use mpris_player::MprisPlayer;
+pub use crate::mpris_player::MprisPlayer;
 
 mod metadata;
-pub use metadata::Metadata;
+pub use crate::metadata::Metadata;
 
 mod status;
-pub use status::LoopStatus;
-pub use status::PlaybackStatus;
+pub use crate::status::LoopStatus;
+pub use crate::status::PlaybackStatus;
 
 mod generated;
-pub use generated::mediaplayer2::OrgMprisMediaPlayer2;
-pub use generated::mediaplayer2_player::OrgMprisMediaPlayer2Player;
+pub use crate::generated::mediaplayer2::OrgMprisMediaPlayer2;
+pub use crate::generated::mediaplayer2_player::OrgMprisMediaPlayer2Player;

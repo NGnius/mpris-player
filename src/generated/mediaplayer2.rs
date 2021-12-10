@@ -24,22 +24,22 @@ impl<'a, C: ::std::ops::Deref<Target = dbus::Connection>> OrgMprisMediaPlayer2
     type Err = dbus::Error;
 
     fn raise(&self) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(
+        let mut m = r#try!(self.method_call_with_args(
             &"org.mpris.MediaPlayer2".into(),
             &"Raise".into(),
             |_| {}
         ));
-        try!(m.as_result());
+        r#try!(m.as_result());
         Ok(())
     }
 
     fn quit(&self) -> Result<(), Self::Err> {
-        let mut m = try!(self.method_call_with_args(
+        let mut m = r#try!(self.method_call_with_args(
             &"org.mpris.MediaPlayer2".into(),
             &"Quit".into(),
             |_| {}
         ));
-        try!(m.as_result());
+        r#try!(m.as_result());
         Ok(())
     }
 
@@ -135,14 +135,14 @@ where
     D::Method: Default,
     D::Property: Default,
     T: OrgMprisMediaPlayer2<Err = tree::MethodErr>,
-    F: 'static + for<'z> Fn(&'z tree::MethodInfo<tree::MTFn<D>, D>) -> &'z T,
+    F: 'static + for<'z> Fn(&'z tree::MethodInfo<'_, tree::MTFn<D>, D>) -> &'z T,
 {
     let i = factory.interface("org.mpris.MediaPlayer2", data);
     let f = ::std::sync::Arc::new(f);
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<'_, tree::MTFn<D>, D>| {
         let d = fclone(minfo);
-        try!(d.raise());
+        r#try!(d.raise());
         let rm = minfo.msg.method_return();
         Ok(vec![rm])
     };
@@ -150,9 +150,9 @@ where
     let i = i.add_m(m);
 
     let fclone = f.clone();
-    let h = move |minfo: &tree::MethodInfo<tree::MTFn<D>, D>| {
+    let h = move |minfo: &tree::MethodInfo<'_, tree::MTFn<D>, D>| {
         let d = fclone(minfo);
-        try!(d.quit());
+        r#try!(d.quit());
         let rm = minfo.msg.method_return();
         Ok(vec![rm])
     };
@@ -165,7 +165,7 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_can_quit()));
+        a.append(r#try!(d.get_can_quit()));
         Ok(())
     });
     let i = i.add_p(p);
@@ -176,14 +176,14 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_fullscreen()));
+        a.append(r#try!(d.get_fullscreen()));
         Ok(())
     });
     let fclone = f.clone();
     let p = p.on_set(move |iter, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        try!(d.set_fullscreen(try!(iter.read())));
+        r#try!(d.set_fullscreen(r#try!(iter.read())));
         Ok(())
     });
     let i = i.add_p(p);
@@ -194,7 +194,7 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_can_set_fullscreen()));
+        a.append(r#try!(d.get_can_set_fullscreen()));
         Ok(())
     });
     let i = i.add_p(p);
@@ -205,7 +205,7 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_can_raise()));
+        a.append(r#try!(d.get_can_raise()));
         Ok(())
     });
     let i = i.add_p(p);
@@ -216,7 +216,7 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_has_track_list()));
+        a.append(r#try!(d.get_has_track_list()));
         Ok(())
     });
     let i = i.add_p(p);
@@ -227,7 +227,7 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_identity()));
+        a.append(r#try!(d.get_identity()));
         Ok(())
     });
     let i = i.add_p(p);
@@ -238,7 +238,7 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_desktop_entry()));
+        a.append(r#try!(d.get_desktop_entry()));
         Ok(())
     });
     let i = i.add_p(p);
@@ -249,7 +249,7 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_supported_uri_schemes()));
+        a.append(r#try!(d.get_supported_uri_schemes()));
         Ok(())
     });
     let i = i.add_p(p);
@@ -260,7 +260,7 @@ where
     let p = p.on_get(move |a, pinfo| {
         let minfo = pinfo.to_method_info();
         let d = fclone(&minfo);
-        a.append(try!(d.get_supported_mime_types()));
+        a.append(r#try!(d.get_supported_mime_types()));
         Ok(())
     });
     let i = i.add_p(p);

@@ -1,5 +1,5 @@
-extern crate dbus;
-extern crate glib;
+use dbus;
+//extern crate glib;
 use dbus::arg::{RefArg, Variant};
 use dbus::tree::{Factory, Interface, MTFn};
 use dbus::{tree, BusType, Connection, Path, SignalArgs};
@@ -10,17 +10,17 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::Arc;
 
-use generated::mediaplayer2::org_mpris_media_player2_server;
-use generated::mediaplayer2_player::{
+use crate::generated::mediaplayer2::org_mpris_media_player2_server;
+use crate::generated::mediaplayer2_player::{
     org_mpris_media_player2_player_server, OrgFreedesktopDBusPropertiesPropertiesChanged,
 };
 
-use OrgMprisMediaPlayer2;
-use OrgMprisMediaPlayer2Player;
+use crate::OrgMprisMediaPlayer2;
+use crate::OrgMprisMediaPlayer2Player;
 
-use LoopStatus;
-use Metadata;
-use PlaybackStatus;
+use crate::LoopStatus;
+use crate::Metadata;
+use crate::PlaybackStatus;
 
 pub struct MprisPlayer {
     connection: Arc<Connection>,
@@ -159,13 +159,17 @@ impl MprisPlayer {
         tree.set_registered(&mpris_player.connection, true).unwrap();
         mpris_player.connection.add_handler(tree);
 
-        let connection = mpris_player.connection.clone();
-        glib::source::timeout_add_local(250, move || {
+        /*let connection = mpris_player.connection.clone();
+        glib::source::timeout_add_local(std::time::Duration::from_millis(25), move || {
             connection.incoming(5).next();
             glib::Continue(true)
-        });
+        });*/
 
         mpris_player
+    }
+
+    pub fn poll(&self, timeout: u32) {
+        self.connection.incoming(timeout).next();
     }
 
     pub fn property_changed<T: 'static>(&self, name: String, value: T)
@@ -544,7 +548,7 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
         Ok(())
     }
 
-    fn set_position(&self, _track_id: dbus::Path, position: i64) -> Result<(), Self::Err> {
+    fn set_position(&self, _track_id: dbus::Path<'_>, position: i64) -> Result<(), Self::Err> {
         self.position.set(position);
         self.property_changed("Position".to_string(), self.get_position().unwrap());
         Ok(())
@@ -668,7 +672,7 @@ impl OrgMprisMediaPlayer2Player for MprisPlayer {
 }
 
 impl ::std::fmt::Debug for MprisPlayer {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         write!(f, "mprisplayer")
     }
 }
